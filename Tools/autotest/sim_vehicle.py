@@ -548,7 +548,8 @@ def start_antenna_tracker(opts):
     tracker_instance = 1
     oldpwd = os.getcwd()
     os.chdir(vehicledir)
-    tracker_uarta = "tcp:127.0.0.1:" + str(5760 + 10 * tracker_instance)
+   # tracker_uarta = "tcp:127.0.0.1:" + str(5760 + 10 * tracker_instance)
+    tracker_uarta = "tcp:{}:".format(cmd_opts.local_ip) + str(5760 + 10 * tracker_instance)
     exe = os.path.join(vehicledir, "AntennaTracker.elf")
     run_in_terminal_window("AntennaTracker",
                            ["nice",
@@ -657,6 +658,9 @@ def start_mavproxy(opts, stuff):
     # FIXME: would be nice to e.g. "mavproxy.mavproxy(....).run"
     # rather than shelling out
 
+    mavlink_port = "tcp:{}:".format(cmd_opts.local_ip) + str(5760 + 10 * cmd_opts.instance)
+    simout_port = "127.0.0.1:" + str(5501 + 10 * cmd_opts.instance)
+
     extra_cmd = ""
     cmd = []
     if under_cygwin():
@@ -756,7 +760,8 @@ def start_mavproxy(opts, stuff):
                 if os.path.isfile("/ardupilot.vagrant"):
                     # We're running inside of a vagrant guest; forward our
                     # mavlink out to the containing host OS
-                    c.extend(["--out", "10.0.2.2:" + str(port)])
+                    #c.extend(["--out", "10.0.2.2:" + str(port)])
+                    c.extend(["--out", "{}:".format(cmd_opts.ip) + str(port)])
                 else:
                     c.extend(["--out", "127.0.0.1:" + str(port)])
 
@@ -766,9 +771,9 @@ def start_mavproxy(opts, stuff):
             if opts.mcast:
                 c.extend(["--master", "mcast:"])
             else:
-                c.extend(["--master", "tcp:127.0.0.1:" + str(5760 + 10 * i)])
+                c.extend(["--master", mavlink_port])
             if stuff["sitl-port"] and not opts.no_rcin:
-                c.extend(["--sitl", "127.0.0.1:" + str(5501 + 10 * i)])
+                c.extend(["--sitl", simout_port])
 
         os.chdir(i_dir)
         if i == instances[-1]:
@@ -821,6 +826,19 @@ parser.add_option("-H", "--hil",
                   action='store_true',
                   default=False,
                   help="start HIL")
+
+parser.add_option("-y", "--ip-gcs",
+	type="string",
+	dest = "ip",
+	default="127.0.0.1",
+	help="ip of GCS"
+)
+
+parser.add_option("-z","--local-ip",
+	type="string",
+	dest="local_ip",
+	default="192.168.0.17",
+	help="local ip")
 
 group_build = optparse.OptionGroup(parser, "Build options")
 group_build.add_option("-N", "--no-rebuild",
