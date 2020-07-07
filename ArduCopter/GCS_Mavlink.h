@@ -6,11 +6,8 @@ class GCS_MAVLINK_Copter : public GCS_MAVLINK
 {
 
 public:
-
     using GCS_MAVLINK::GCS_MAVLINK;
-
 protected:
-
     uint32_t telem_delay() const override;
 
     MAV_RESULT handle_flight_termination(const mavlink_command_long_t &packet) override;
@@ -35,7 +32,7 @@ protected:
     void handle_mount_message(const mavlink_message_t &msg) override;
 
     bool set_home_to_current_location(bool lock) override WARN_IF_UNUSED;
-    bool set_home(const Location& loc, bool lock) override WARN_IF_UNUSED;
+    bool set_home(const Location &loc, bool lock) override WARN_IF_UNUSED;
     void send_nav_controller_output() const override;
     uint64_t capabilities() const override;
 
@@ -45,7 +42,6 @@ protected:
     bool allow_disarm() const override;
 
 private:
-
     void handleMessage(const mavlink_message_t &msg) override;
     void handle_command_ack(const mavlink_message_t &msg) override;
     bool handle_guided_request(AP_Mission::Mission_Command &cmd) override;
@@ -63,5 +59,4 @@ private:
     float vfr_hud_alt() const override;
 
     void send_pid_tuning() override;
-
 };
