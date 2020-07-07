@@ -221,7 +221,8 @@ static void sitl_flash_open(void)
             }
             uint8_t fill[HAL_FLASH_SECTOR_SIZE*2];
             memset(fill, 0xff, sizeof(fill));
-            pwrite(flash_fd, fill, sizeof(fill), 0);
+            int t = pwrite(flash_fd, fill, sizeof(fill), 0);
+            printf("%d\n",t);
         }
     }
 }
