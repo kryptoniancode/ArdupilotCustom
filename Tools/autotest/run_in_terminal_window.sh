@@ -34,7 +34,7 @@ elif [ -n "$DISPLAY" -a -n "$(which xterm)" ]; then
   if [ $SITL_RITW_MINIMIZE -eq 1 ]; then
       ICONIC=-iconic
   fi
-  xterm $ICONIC -xrm 'XTerm*selectToClipboard: true' -xrm 'XTerm*initialFont: 6' -n "$name" -name "$name" -T "$name" -hold -e $* &
+  xterm $ICONIC -xrm 'XTerm*selectToClipboard: true' -xrm 'XTerm*initialFont: 6' -n "$name" -name "$name" -T "$name" -hold -e "$* >/tmp/log.txt 2>&1  /tmp/log.txt"  &
 elif [ -n "$DISPLAY" -a -n "$(which konsole)" ]; then
   konsole --hold -e $*
 elif [ -n "$DISPLAY" -a -n "$(which gnome-terminal)" ]; then
