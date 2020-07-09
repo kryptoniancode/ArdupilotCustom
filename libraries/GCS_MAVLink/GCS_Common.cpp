@@ -46,6 +46,8 @@
 
 #include <stdio.h>
 
+#define member_size(type, member) sizeof(((type *)0)->member)
+
 #if HAL_RCINPUT_WITH_AP_RADIO
 #include <AP_Radio/AP_Radio.h>
 #include <AP_BoardConfig/AP_BoardConfig.h>
@@ -844,8 +846,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         {MAVLINK_MSG_ID_EXTENDED_SYS_STATE, MSG_EXTENDED_SYS_STATE},
         {MAVLINK_MSG_ID_AUTOPILOT_VERSION, MSG_AUTOPILOT_VERSION},
         {MAVLINK_MSG_ID_EFI_STATUS, MSG_EFI_STATUS},
-        {MAVLINK_MSG_ID_CERTIFICATE, MSG_CERTIFICATE}
-        };
+        {MAVLINK_MSG_ID_CERTIFICATE, MSG_CERTIFICATE}};
 
     for (uint8_t i = 0; i < ARRAY_SIZE(map); i++)
     {
@@ -860,7 +861,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
 void GCS_MAVLINK::send_certificate() const
 {
     const char path[] = "device.cert";
-    (void)mavlink_read_certificate(path,MAVLINK_DEVICE_CERTIFICATE);
+    (void)mavlink_read_certificate(path);
     mavlink_device_certificate_t *certificate = mavlink_get_device_certificate();
     mavlink_msg_certificate_send(
         chan,
@@ -3351,6 +3352,30 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
     }
 }
 
+void GCS_MAVLINK::handle_certificate(const mavlink_message_t &msg)
+{
+    mavlink_certificate_t certificate;
+    mavlink_msg_certificate_decode(&msg, &certificate);
+    static uint8_t cert[sizeof(info_t)];
+
+    //swaped values
+    //memcpy(cert, &certificate, sizeof(info_t));
+    memcpy(&cert[0], &certificate.seq_number, member_size(info_t, seq_number));
+    memcpy(&cert[member_size(info_t, seq_number)], &certificate.device_id, member_size(info_t, device_id));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id)], certificate.device_name, member_size(info_t, device_name));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name)], certificate.subject, member_size(info_t, subject));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject)], certificate.issuer, member_size(info_t, issuer));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer)], certificate.public_key, member_size(info_t, public_key));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key)], certificate.public_key_auth, member_size(info_t, public_key_auth));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth)], &certificate.start_time, member_size(info_t, start_time));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth) + member_size(info_t, start_time)], &certificate.end_time, member_size(info_t, end_time));
+
+    if (mavlink_check_remote_certificate(certificate.start_time, certificate.end_time, cert, certificate.sign))
+    {
+        mavlink_set_remote_key(msg.sysid, certificate.public_key);
+    }
+}
+
 // allow override of RC channel values for HIL or for complete GCS
 // control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_rc_channels_override(const mavlink_message_t &msg)
@@ -3446,6 +3471,7 @@ void GCS_MAVLINK::handle_obstacle_distance(const mavlink_message_t &msg)
  */
 void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
 {
+
     switch (msg.msgid)
     {
     case MAVLINK_MSG_ID_COMMAND_ACK:
@@ -3454,6 +3480,12 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
         break;
     }
 
+    case MAVLINK_MSG_ID_CERTIFICATE:
+    {
+        printf("GOT CERT\n");
+        handle_certificate(msg);
+        break;
+    }
     case MAVLINK_MSG_ID_SETUP_SIGNING:
         handle_setup_signing(msg);
         break;
@@ -4752,7 +4784,6 @@ void GCS_MAVLINK::send_set_position_target_global_int(uint8_t target_system, uin
         0, 0, 0, // ax, ay, az
         0, 0);   // yaw, yaw_rate
 }
-
 
 bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 {
