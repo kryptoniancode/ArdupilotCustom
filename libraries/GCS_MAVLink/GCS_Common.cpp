@@ -3482,7 +3482,6 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
 
     case MAVLINK_MSG_ID_CERTIFICATE:
     {
-        printf("GOT CERT\n");
         handle_certificate(msg);
         break;
     }
