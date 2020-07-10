@@ -2,6 +2,12 @@
 
 #include "GCS_Mavlink.h"
 
+#define MAVLINK_EXTERNAL_KEYS_STORAGE
+#ifdef MAVLINK_EXTERNAL_KEYS_STORAGE
+extern key_status_t remote_keys[256];
+#endif
+
+
 /*
  *  !!NOTE!!
  *

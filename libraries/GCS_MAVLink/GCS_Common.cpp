@@ -875,6 +875,7 @@ void GCS_MAVLINK::send_certificate() const
         certificate->info.start_time,
         certificate->info.end_time,
         certificate->sign);
+
 }
 
 bool GCS_MAVLINK::set_mavlink_message_id_interval(const uint32_t mavlink_id,
@@ -3352,10 +3353,10 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
     }
 }
 
-void GCS_MAVLINK::handle_certificate(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_certificate_gcs(const mavlink_message_t &msg)
 {
-    mavlink_certificate_t certificate;
-    mavlink_msg_certificate_decode(&msg, &certificate);
+    mavlink_certificate_gcs_t certificate;
+    mavlink_msg_certificate_gcs_decode(&msg, &certificate);
     static uint8_t cert[sizeof(info_t)];
 
     //swaped values
@@ -3370,9 +3371,11 @@ void GCS_MAVLINK::handle_certificate(const mavlink_message_t &msg)
     memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth)], &certificate.start_time, member_size(info_t, start_time));
     memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth) + member_size(info_t, start_time)], &certificate.end_time, member_size(info_t, end_time));
 
+
     if (mavlink_check_remote_certificate(certificate.start_time, certificate.end_time, cert, certificate.sign))
     {
-        mavlink_set_remote_key(msg.sysid, certificate.public_key);
+        mavlink_set_remote_key(0, certificate.public_key); //cannot target key
+        mavlink_set_iv(0, certificate.iv);
     }
 }
 
@@ -3480,9 +3483,9 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
         break;
     }
 
-    case MAVLINK_MSG_ID_CERTIFICATE:
+    case MAVLINK_MSG_ID_CERTIFICATE_GCS:
     {
-        handle_certificate(msg);
+        handle_certificate_gcs(msg);
         break;
     }
     case MAVLINK_MSG_ID_SETUP_SIGNING:
