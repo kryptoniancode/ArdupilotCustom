@@ -2,12 +2,6 @@
 
 #include "GCS_Mavlink.h"
 
-#define MAVLINK_EXTERNAL_KEYS_STORAGE
-#ifdef MAVLINK_EXTERNAL_KEYS_STORAGE
-extern key_status_t remote_keys[256];
-#endif
-
-
 /*
  *  !!NOTE!!
  *
@@ -466,8 +460,7 @@ static const ap_message STREAM_EXTRA3_msgs[] = {
     MSG_VIBRATION,
     MSG_RPM,
     MSG_ESC_TELEMETRY,
-    MSG_CERTIFICATE
-};
+    MSG_CERTIFICATE};
 static const ap_message STREAM_PARAMS_msgs[] = {
     MSG_NEXT_PARAM};
 static const ap_message STREAM_ADSB_msgs[] = {
@@ -541,7 +534,6 @@ void GCS_MAVLINK_Copter::send_banner()
     GCS_MAVLINK::send_banner();
     send_text(MAV_SEVERITY_INFO, "Frame: %s", copter.get_frame_string());
 }
-
 
 // a RC override message is considered to be a 'heartbeat' from the ground station for failsafe purposes
 void GCS_MAVLINK_Copter::handle_rc_channels_override(const mavlink_message_t &msg)
