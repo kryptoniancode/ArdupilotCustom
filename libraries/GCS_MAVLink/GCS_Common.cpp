@@ -871,7 +871,6 @@ void GCS_MAVLINK::send_certificate() const
         certificate->info.subject,
         certificate->info.issuer,
         certificate->info.public_key,
-        certificate->info.public_key_auth,
         certificate->info.start_time,
         certificate->info.end_time,
         certificate->sign);
@@ -3367,9 +3366,8 @@ void GCS_MAVLINK::handle_certificate_gcs(const mavlink_message_t &msg)
     memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name)], certificate.subject, member_size(info_t, subject));
     memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject)], certificate.issuer, member_size(info_t, issuer));
     memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer)], certificate.public_key, member_size(info_t, public_key));
-    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key)], certificate.public_key_auth, member_size(info_t, public_key_auth));
-    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth)], &certificate.start_time, member_size(info_t, start_time));
-    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, public_key_auth) + member_size(info_t, start_time)], &certificate.end_time, member_size(info_t, end_time));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key)], &certificate.start_time, member_size(info_t, start_time));
+    memcpy(&cert[member_size(info_t, seq_number) + member_size(info_t, device_id) + member_size(info_t, device_name) + member_size(info_t, subject) + member_size(info_t, issuer) + member_size(info_t, public_key) + member_size(info_t, start_time)], &certificate.end_time, member_size(info_t, end_time));
 
 
     if (mavlink_check_remote_certificate(certificate.start_time, certificate.end_time, cert, certificate.sign))
