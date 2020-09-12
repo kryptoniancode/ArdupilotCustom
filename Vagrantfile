@@ -28,8 +28,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
   config.vm.provider "virtualbox" do |vb|
       # host only adapter
-      config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0', :adapter => 2
-
       vb.customize ["modifyvm", :id, "--memory", "3192"]
       vb.customize ["modifyvm", :id, "--ioapic", "on"]
       vb.customize ["modifyvm", :id, "--cpus", "2"]
@@ -38,6 +36,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-start"]
       vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-on-restore", "1"]
   end
+
+  config.vm.network "private_network", :type => 'dhcp', :name => 'vboxnet0'
+
+
 
   # If you are on windows then you must use a version of git >= 1.8.x
   # to update the submodules in order to build. Older versions of git
@@ -52,7 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     trusty32.vm.box = "ubuntu/trusty32"
     trusty32.vm.provision "trusty32", type: "shell", path: "Tools/vagrant/initvagrant.sh"
     trusty32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (trusty32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -61,7 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     trusty64.vm.box = "ubuntu/trusty64"
     trusty64.vm.provision "trusty64", type: "shell", path: "Tools/vagrant/initvagrant.sh"
     trusty64.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (trusty64)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -71,7 +73,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     xenial32.vm.box = "ubuntu/xenial32"
     xenial32.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     xenial32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (xenial32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -79,7 +81,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     xenial64.vm.box = "ubuntu/xenial64"
     xenial64.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     xenial64.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (xenial64)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -90,7 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     zesty32.vm.box = "ubuntu/zesty32"
     zesty32.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     zesty32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (zesty32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -100,7 +102,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     artful32.vm.box = "ubuntu/artful32"
     artful32.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     artful32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (artful32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -110,7 +112,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     bionic32.vm.box = "ubuntu/bionic32"
     bionic32.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     bionic32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (bionic32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -119,7 +121,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     bionic64.vm.box = "ubuntu/bionic64"
     bionic64.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     bionic64.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (bionic64)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -128,7 +130,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cosmic32.vm.box = "ubuntu/cosmic32"
     cosmic32.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     cosmic32.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (cosmic32)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -137,7 +139,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cosmic64.vm.box = "ubuntu/cosmic64"
     cosmic64.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     cosmic64.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (cosmic64)"
+      vb.name = "ArduPilotCustom"
     end
   end
 
@@ -146,7 +148,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     disco64.vm.box = "ubuntu/disco64"
     disco64.vm.provision :shell, path: "Tools/vagrant/initvagrant.sh"
     disco64.vm.provider "virtualbox" do |vb|
-      vb.name = "ArduPilot (disco64)"
+      vb.name = "ArduPilotCustom"
       vb.gui = true
     end
   end
