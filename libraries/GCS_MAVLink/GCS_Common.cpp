@@ -846,7 +846,10 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
         {MAVLINK_MSG_ID_EXTENDED_SYS_STATE, MSG_EXTENDED_SYS_STATE},
         {MAVLINK_MSG_ID_AUTOPILOT_VERSION, MSG_AUTOPILOT_VERSION},
         {MAVLINK_MSG_ID_EFI_STATUS, MSG_EFI_STATUS},
-        {MAVLINK_MSG_ID_CERTIFICATE, MSG_CERTIFICATE}};
+#ifdef ENENCRYPTION
+        {MAVLINK_MSG_ID_CERTIFICATE, MSG_CERTIFICATE}
+#endif
+    };
 
     for (uint8_t i = 0; i < ARRAY_SIZE(map); i++)
     {
@@ -857,6 +860,7 @@ ap_message GCS_MAVLINK::mavlink_id_to_ap_message_id(const uint32_t mavlink_id) c
     }
     return MSG_LAST;
 }
+#ifdef ENENCRYPTION
 /* send certificate */
 void GCS_MAVLINK::send_certificate() const
 {
@@ -874,8 +878,8 @@ void GCS_MAVLINK::send_certificate() const
         certificate->info.start_time,
         certificate->info.end_time,
         certificate->sign);
-
 }
+#endif
 
 bool GCS_MAVLINK::set_mavlink_message_id_interval(const uint32_t mavlink_id,
                                                   const uint16_t interval_ms)
@@ -3351,7 +3355,7 @@ void GCS_MAVLINK::handle_command_ack(const mavlink_message_t &msg)
         accelcal->handleMessage(msg);
     }
 }
-
+#ifdef ENENCRYPTION
 void GCS_MAVLINK::handle_certificate_gcs(const mavlink_message_t &msg)
 {
     mavlink_certificate_gcs_t certificate;
@@ -3376,7 +3380,7 @@ void GCS_MAVLINK::handle_certificate_gcs(const mavlink_message_t &msg)
         mavlink_set_iv(0, certificate.iv);
     }
 }
-
+#endif
 // allow override of RC channel values for HIL or for complete GCS
 // control of switch position and RC PWM values.
 void GCS_MAVLINK::handle_rc_channels_override(const mavlink_message_t &msg)
@@ -3480,12 +3484,13 @@ void GCS_MAVLINK::handle_common_message(const mavlink_message_t &msg)
         handle_command_ack(msg);
         break;
     }
-
+#ifdef ENENCRYPTION
     case MAVLINK_MSG_ID_CERTIFICATE_GCS:
     {
         handle_certificate_gcs(msg);
         break;
     }
+#endif
     case MAVLINK_MSG_ID_SETUP_SIGNING:
         handle_setup_signing(msg);
         break;
@@ -4791,10 +4796,12 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     switch (id)
     {
+#ifdef ENENCRYPTION        
     case MSG_CERTIFICATE:
         CHECK_PAYLOAD_SIZE(CERTIFICATE);
         send_certificate();
         break;
+#endif        
     case MSG_ATTITUDE:
         CHECK_PAYLOAD_SIZE(ATTITUDE);
         send_attitude();

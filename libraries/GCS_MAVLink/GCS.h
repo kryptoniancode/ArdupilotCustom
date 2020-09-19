@@ -26,7 +26,7 @@
 #include "ap_message.h"
 
 #define GCS_DEBUG_SEND_MESSAGE_TIMINGS 0
-#define ENCRYPTION
+//#define ENCRYPTION
 
 #ifndef HAL_NO_GCS
 
@@ -281,8 +281,9 @@ public:
     void send_sys_status();
     void send_set_position_target_global_int(uint8_t target_system, uint8_t target_component, const Location &loc);
     void send_rpm() const;
+#ifdef ENENCRYPTION
     void send_certificate() const;
-
+#endif
     // lock a channel, preventing use by MAVLink
     void lock(bool _lock)
     {
@@ -387,7 +388,9 @@ protected:
     void handle_request_data_stream(const mavlink_message_t &msg);
 
     virtual void handle_command_ack(const mavlink_message_t &msg);
+#ifdef ENENCRYPTION
     virtual void handle_certificate_gcs(const mavlink_message_t &msg);
+#endif
     void handle_set_mode(const mavlink_message_t &msg);
     void handle_command_int(const mavlink_message_t &msg);
 
